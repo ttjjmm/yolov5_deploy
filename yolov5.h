@@ -11,15 +11,6 @@
 #include <net.h>
 
 
-
-struct CenterPrior
-{
-    int x;
-    int y;
-    int stride;
-};
-
-
 typedef struct BoxInfo {
     float x1;
     float y1;
@@ -30,9 +21,14 @@ typedef struct BoxInfo {
 } BoxInfo;
 
 
+typedef struct LayerInfo {
+    std::string name;
+    int stride;
+    std::vector<cv::Size_<int>> anchors;
+} LayerInfo;
 
-class Yolov5
-{
+
+class Yolov5 {
 public:
     Yolov5(const char* param, const char* bin, bool useGPU);
     ~Yolov5();
@@ -40,11 +36,7 @@ public:
     static Yolov5* detector;
     ncnn::Net* Net;
     static bool hasGPU;
-    // modify these parameters to the same with your config if you want to use your own model
     cv::Size_<int> input_size = {416, 416}; // input height and width
-    int num_class = 80; // number of classes. 80 for COCO
-//    int reg_max = 7; // `reg_max` set in the training config. Default: 7.
-    std::vector<int> strides = {8, 16, 32}; // strides of the multi-level feature.
 
     std::vector<BoxInfo> detect(cv::Mat image, float score_threshold, float nms_threshold);
 
@@ -58,17 +50,15 @@ public:
                                      "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
                                      "hair drier", "toothbrush" };
 private:
-
-    const std::map<int, std::vector<cv::Size_<int>>> anchors {
+    std::vector<LayerInfo> layer_info {
         // key: stride, value: anchors
-            {8,  {{10, 13}, {16, 30},  {33, 23}}},
-            {16, {{30,  61}, {62,  45},  {59,  119}}},
-            {32, {{116, 90}, {156, 198}, {373, 326}}},
+            {"output", 8, {{10, 13}, {16, 30},  {33, 23}}},
+            {"355", 16, {{30,  61}, {62,  45},  {59,  119}}},
+            {"370", 32, {{116, 90}, {156, 198}, {373, 326}}},
     };
-
+    void decode_layer(const ncnn::Mat& feats, const std::vector<cv::Size_<int>> &anchors,
+                      int stride, float score_thr, std::vector<BoxInfo> &results) const;
     static void preprocess(cv::Mat& image, ncnn::Mat& in);
-    void decode_infer(ncnn::Mat& feats, std::vector<CenterPrior>& center_priors, float threshold, std::vector<std::vector<BoxInfo>>& results);
-    BoxInfo disPred2Bbox(const float*& dfl_det, int label, float score, int x, int y, int stride);
     static void nms(std::vector<BoxInfo>& result, float nms_threshold);
 
 };

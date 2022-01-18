@@ -85,12 +85,7 @@ int resize_uniform(cv::Mat& src, cv::Mat& dst, const cv::Size& dst_size, object_
 }
 
 
-
-
-
 int main() {
-    // /home/tjm/Documents/python/pycharmProjects
-    // /home/ubuntu/Documents/pycharm/
     cv::Mat img;
     std::string path2 = "/home/ubuntu/Documents/cpp/yolov5/dog.jpg";
     img = cv::imread(path2, cv::COLOR_BGR2RGB);
@@ -99,17 +94,16 @@ int main() {
         return -1;
     }
 
-//    ResizeImg(img, resize_img, 960, rat_a, rat_b);
+    Yolov5 det("/home/ubuntu/Documents/cpp/yolov5/ncnn/yolov5s.param",
+               "/home/ubuntu/Documents/cpp/yolov5/ncnn/yolov5s.bin",
+               true);
 
-    Yolov5 det("/home/ubuntu/Documents/cpp/yolov5/ncnn/yolov5s_opt.param",
-               "/home/ubuntu/Documents/cpp/yolov5/ncnn/yolov5s_opt.bin",
-               false);
     cv::Mat resize_img;
     auto input_size = det.input_size;
     object_rect eff{};
     resize_uniform(img, resize_img, input_size, eff);
 
-    std::vector<BoxInfo> dets = det.detect(resize_img, 0.324, 0.5);
+    std::vector<BoxInfo> dets = det.detect(resize_img, 0.5, 0.5);
 
     for (auto& det_box: dets){
         auto pt1 = cv::Point2i(int(det_box.x1), int(det_box.y1));
