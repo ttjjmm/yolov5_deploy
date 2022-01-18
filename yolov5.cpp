@@ -111,7 +111,7 @@ void Yolov5::decode_infer(ncnn::Mat& feats,
                 }
                 if (score > threshold) {
                     //std::cout << "label:" << cur_label << " score:" << score << std::endl;
-                    const float *bbox_pred = feats.row(idx);
+                    const float *bbox_pred = feats.row(iiiidx);
                     auto cx = (float) ((bbox_pred[0] * 2 - 0.5 + ct_x) * curr_stride);
                     auto cy = (float) ((bbox_pred[1] * 2 - 0.5 + ct_y) * curr_stride);
                     auto w = (float) (pow(bbox_pred[2] * 2, 2) * curr_anchors.at(anchor_i).width);
@@ -193,7 +193,6 @@ std::vector<BoxInfo> Yolov5::detect(cv::Mat image, float score_threshold, float 
     std::cout << out.w << " x " << out.h << std::endl;
 
     this->decode_infer(out, center_priors, score_threshold, results);
-    std::cout << results.size() << std::endl;
 
     std::vector<BoxInfo> dets;
     for (auto & result : results) {
