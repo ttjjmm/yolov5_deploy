@@ -76,26 +76,26 @@ void Yolov5::decode_infer(ncnn::Mat& feats,
 
     const int num_points = (int)center_priors.size();
     //printf("num_points:%d\n", num_points);
-    int curr_stride = 32;
+    int curr_stride = 8;
     int anchor_num = 3;
-    std::vector<cv::Size_<int>> curr_anchors;
+    std::vector<cv::Size_<int>> curr_anchors = this->anchors.at(curr_stride);
+    int ele_size = (this->input_size.width / curr_stride) * (this->input_size.height / curr_stride);
     //cv::Mat debug_heatmap = cv::Mat(feature_h, feature_w, CV_8UC3);
     for (int idx = 0; idx < num_points; idx++) {
-
         auto stride = center_priors[idx].stride;
-
+//        std::cout << "ok"  << stride << std::endl;
         if (curr_stride != stride) {
             curr_stride = stride;
             anchor_num = (int)this->anchors.at(curr_stride).size();
             curr_anchors = this->anchors.at(curr_stride);
+            ele_size = (this->input_size.width / curr_stride) * (this->input_size.height / curr_stride);
         }
-
         const int ct_x = center_priors[idx].x;
         const int ct_y = center_priors[idx].y;
 
         for (int anchor_i = 0; anchor_i < anchor_num; ++anchor_i) {
 
-            const float* scores = feats.row(idx * anchor_num + anchor_i) + 5;
+            const float* scores = feats.row(idx * anchor_num + anchor_i * ele_size) + 5;
             float score = 0;
             int cur_label = 0;
             for (int label = 0; label < this->num_class; label++) {
