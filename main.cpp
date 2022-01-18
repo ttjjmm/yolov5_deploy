@@ -109,11 +109,13 @@ int main() {
     object_rect eff{};
     resize_uniform(img, resize_img, input_size, eff);
 
-    det.detect(resize_img, 0.3, 0.5);
+    std::vector<BoxInfo> dets = det.detect(resize_img, 0.324, 0.5);
 
-//    for (auto& det_box: res){
-//        cv::rectangle(img, det_box.pt1, det_box.pt2, cv::Scalar(255, 0, 0), 2, cv::LINE_4);
-//    }
+    for (auto& det_box: dets){
+        auto pt1 = cv::Point2i(int(det_box.x1), int(det_box.y1));
+        auto pt2 = cv::Point2i(int(det_box.x2), int(det_box.y2));
+        cv::rectangle(resize_img, pt1, pt2, cv::Scalar(0, 0, 255), 2, cv::LINE_4);
+    }
     cv::imshow("res", resize_img);
     cv::waitKey(0);
 
