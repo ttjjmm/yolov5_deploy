@@ -1,5 +1,5 @@
 7767517
-180 204
+176 200
 Input                    images                   0 1 images
 Convolution              Conv_0                   1 1 images 122 0=32 1=6 3=2 4=2 5=1 6=3456
 Swish                    Mul_2                    1 1 122 124
@@ -165,18 +165,14 @@ Concat                   Concat_194               2 1 318 321 322
 Convolution              Conv_195                 1 1 322 323 0=512 1=1 5=1 6=262144
 Swish                    Mul_197                  1 1 323 325
 Convolution              Conv_198                 1 1 285_splitncnn_0 326 0=255 1=1 5=1 6=32640
-Reshape                  Reshape_212              1 1 326 344 0=-1 1=85 2=3
-Permute                  Transpose_213            1 1 344 345 0=1
-Sigmoid                  Sigmoid_214              1 1 345 346
-Reshape                  Reshape_217              1 1 346 353 0=85 1=-1
-Convolution              Conv_218                 1 1 305_splitncnn_0 354 0=255 1=1 5=1 6=65280
-Reshape                  Reshape_232              1 1 354 372 0=-1 1=85 2=3
-Permute                  Transpose_233            1 1 372 373 0=1
-Sigmoid                  Sigmoid_234              1 1 373 374
-Reshape                  Reshape_237              1 1 374 381 0=85 1=-1
-Convolution              Conv_238                 1 1 325 382 0=255 1=1 5=1 6=130560
-Reshape                  Reshape_252              1 1 382 400 0=-1 1=85 2=3
-Permute                  Transpose_253            1 1 400 401 0=1
-Sigmoid                  Sigmoid_254              1 1 401 402
-Reshape                  Reshape_257              1 1 402 409 0=85 1=-1
-Concat                   Concat_258               3 1 353 381 409 output
+Reshape                  Reshape_204              1 1 326 338 0=-1 1=85 2=3
+Permute                  Transpose_205            1 1 338 339 0=1
+Sigmoid                  Sigmoid_206              1 1 339 output
+Convolution              Conv_207                 1 1 305_splitncnn_0 341 0=255 1=1 5=1 6=65280
+Reshape                  Reshape_213              1 1 341 353 0=-1 1=85 2=3
+Permute                  Transpose_214            1 1 353 354 0=1
+Sigmoid                  Sigmoid_215              1 1 354 355
+Convolution              Conv_216                 1 1 325 356 0=255 1=1 5=1 6=130560
+Reshape                  Reshape_222              1 1 356 368 0=-1 1=85 2=3
+Permute                  Transpose_223            1 1 368 369 0=1
+Sigmoid                  Sigmoid_224              1 1 369 370
