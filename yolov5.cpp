@@ -138,7 +138,7 @@ static void generate_grid_center_priors(const int input_height,
 //        YoloLayerData anchor = anchors[i];
         int feat_w = ceil((float)input_width / (float)stride);
         int feat_h = ceil((float)input_height / (float)stride);
-        std::cout << feat_w << std::endl;
+
         for (int y = 0; y < feat_h; y++)
         {
             for (int x = 0; x < feat_w; x++)
@@ -188,14 +188,11 @@ std::vector<BoxInfo> Yolov5::detect(cv::Mat image, float score_threshold, float 
 
     this->decode_infer(out, center_priors, score_threshold, results);
     std::cout << results.size() << std::endl;
-    exit(11);
-    std::vector<BoxInfo> dets;
-    for (int i = 0; i < (int)results.size(); i++)
-    {
-        Yolov5::nms(results[i], nms_threshold);
 
-        for (auto box : results[i])
-        {
+    std::vector<BoxInfo> dets;
+    for (auto & result : results) {
+        Yolov5::nms(result, nms_threshold);
+        for (auto box : result) {
             dets.push_back(box);
         }
     }
@@ -203,7 +200,7 @@ std::vector<BoxInfo> Yolov5::detect(cv::Mat image, float score_threshold, float 
     //double end = ncnn::get_current_time();
     //double time = end - start;
     //printf("Detect Time:%7.2f \n", time);
-
+    std::cout <<  "dets: " << dets.size() << std::endl;
     return dets;
 }
 
