@@ -5,18 +5,11 @@
 #ifndef YOLOV5_YOLOV5_H
 #define YOLOV5_YOLOV5_H
 
+#include <iostream>
+#include <map>
 #include <opencv2/core/core.hpp>
 #include <net.h>
 
-struct YoloObject {
-//    cv::Rect_<float> rect;
-    float x;
-    float y;
-    float w;
-    float h;
-    int label;
-    float prob;
-};
 
 
 struct CenterPrior
@@ -36,18 +29,6 @@ typedef struct BoxInfo {
     int label;
 } BoxInfo;
 
-namespace yolocv {
-    typedef struct {
-        int width;
-        int height;
-    } YoloSize;
-}
-
-typedef struct {
-//    std::string name;
-    int stride;
-    std::vector<yolocv::YoloSize> anchors;
-} YoloLayerData;
 
 
 class Yolov5
@@ -60,7 +41,7 @@ public:
     ncnn::Net* Net;
     static bool hasGPU;
     // modify these parameters to the same with your config if you want to use your own model
-    int input_size[2] = {416, 416}; // input height and width
+    cv::Size_<int> input_size = {416, 416}; // input height and width
     int num_class = 80; // number of classes. 80 for COCO
 //    int reg_max = 7; // `reg_max` set in the training config. Default: 7.
     std::vector<int> strides = {8, 16, 32}; // strides of the multi-level feature.
@@ -78,12 +59,12 @@ public:
                                      "hair drier", "toothbrush" };
 private:
 
-    std::vector<YoloLayerData> anchors{
+    const std::map<int, std::vector<cv::Size_<int>>> anchors {
+        // key: stride, value: anchors
             {8,  {{10, 13}, {16, 30},  {33, 23}}},
             {16, {{30,  61}, {62,  45},  {59,  119}}},
             {32, {{116, 90}, {156, 198}, {373, 326}}},
     };
-
 
     static void preprocess(cv::Mat& image, ncnn::Mat& in);
     void decode_infer(ncnn::Mat& feats, std::vector<CenterPrior>& center_priors, float threshold, std::vector<std::vector<BoxInfo>>& results);
