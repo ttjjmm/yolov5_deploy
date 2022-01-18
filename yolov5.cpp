@@ -40,10 +40,40 @@ void Yolov5::preprocess(cv::Mat& image, ncnn::Mat& in)
     in.substract_mean_normalize(mean_vals, norm_vals);
 }
 
-
-
-void Yolov5::decode_infer(ncnn::Mat& feats, std::vector<CenterPrior>& center_priors, float threshold, std::vector<std::vector<BoxInfo>>& results)
+BoxInfo Yolov5::disPred2Bbox(const float*& dfl_det, int label, float score, int x, int y, int stride)
 {
+    float ct_x = x * stride;
+    float ct_y = y * stride;
+    std::vector<float> dis_pred;
+    dis_pred.resize(4);
+//    for (int i = 0; i < 4; i++)
+//    {
+//        float dis = 0;
+//        float* dis_after_sm = new float[this->reg_max + 1];
+//        activation_function_softmax(dfl_det + i * (this->reg_max + 1), dis_after_sm, this->reg_max + 1);
+//        for (int j = 0; j < this->reg_max + 1; j++)
+//        {
+//            dis += j * dis_after_sm[j];
+//        }
+//        dis *= stride;
+//        //std::cout << "dis:" << dis << std::endl;
+//        dis_pred[i] = dis;
+//        delete[] dis_after_sm;
+//    }
+    float xmin = (std::max)(ct_x - dis_pred[0], .0f);
+    float ymin = (std::max)(ct_y - dis_pred[1], .0f);
+    float xmax = (std::min)(ct_x + dis_pred[2], (float)this->input_size[0]);
+    float ymax = (std::min)(ct_y + dis_pred[3], (float)this->input_size[1]);
+
+    //std::cout << xmin << "," << ymin << "," << xmax << "," << xmax << "," << std::endl;
+    return BoxInfo { xmin, ymin, xmax, ymax, score, label };
+}
+
+void Yolov5::decode_infer(ncnn::Mat& feats,
+                          std::vector<CenterPrior>& center_priors,
+                          float threshold,
+                          std::vector<std::vector<BoxInfo>>& results) {
+
     const int num_points = center_priors.size();
     //printf("num_points:%d\n", num_points);
 
@@ -77,28 +107,30 @@ void Yolov5::decode_infer(ncnn::Mat& feats, std::vector<CenterPrior>& center_pri
 }
 
 
-//static void generate_grid_center_priors(const int input_height, const int input_width, std::vector<int>& strides, std::vector<CenterPrior>& center_priors)
-//{
-//    for (int i = 0; i < (int)strides.size(); i++)
-//    {
-//        int stride = strides[i];
-//        int feat_w = ceil((float)input_width / stride);
-//        int feat_h = ceil((float)input_height / stride);
-//        for (int y = 0; y < feat_h; y++)
-//        {
-//            for (int x = 0; x < feat_w; x++)
-//            {
-//                CenterPrior ct;
-//                ct.x = x;
-//                ct.y = y;
-//                ct.stride = stride;
-//                center_priors.push_back(ct);
-//            }
-//        }
-//    }
-//}
+static void generate_grid_center_priors(const int input_height,
+                                        const int input_width,
+                                        std::vector<int>& strides, 
+                                        const std::vector<YoloLayerData>& anchors,
+                                        std::vector<CenterPrior>& center_priors) {
 
-
+    for (int i = 0; i < (int)strides.size(); i++)
+    {
+        int stride = strides[i];
+        int feat_w = ceil((float)input_width / stride);
+        int feat_h = ceil((float)input_height / stride);
+        for (int y = 0; y < feat_h; y++)
+        {
+            for (int x = 0; x < feat_w; x++)
+            {
+                CenterPrior ct;
+                ct.x = x;
+                ct.y = y;
+                ct.stride = stride;
+                center_priors.push_back(ct);
+            }
+        }
+    }
+}
 
 
 std::vector<BoxInfo> Yolov5::detect(cv::Mat image, float score_threshold, float nms_threshold)
@@ -125,8 +157,11 @@ std::vector<BoxInfo> Yolov5::detect(cv::Mat image, float score_threshold, float 
 
     // generate center priors in format of (x, y, stride)
     std::vector<CenterPrior> center_priors;
-    generate_grid_center_priors(this->input_size[0], this->input_size[1], this->strides, center_priors);
-
+    generate_grid_center_priors(this->input_size[0],
+                                this->input_size[1],
+                                this->strides,
+                                center_priors);
+    exit(11);
     this->decode_infer(out, center_priors, score_threshold, results);
 
     std::vector<BoxInfo> dets;

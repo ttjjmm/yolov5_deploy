@@ -44,7 +44,7 @@ namespace yolocv {
 }
 
 typedef struct {
-    std::string name;
+//    std::string name;
     int stride;
     std::vector<yolocv::YoloSize> anchors;
 } YoloLayerData;
@@ -78,16 +78,16 @@ public:
                                      "hair drier", "toothbrush" };
 private:
 
-    std::vector<YoloLayerData> layers{
-            {"output", 8,  {{10, 13}, {16, 30},  {33, 23}}},
-            {"387", 16, {{30,  61}, {62,  45},  {59,  119}}},
-            {"388", 32, {{116, 90}, {156, 198}, {373, 326}}},
+    std::vector<YoloLayerData> anchors{
+            {8,  {{10, 13}, {16, 30},  {33, 23}}},
+            {16, {{30,  61}, {62,  45},  {59,  119}}},
+            {32, {{116, 90}, {156, 198}, {373, 326}}},
     };
 
 
     static void preprocess(cv::Mat& image, ncnn::Mat& in);
     void decode_infer(ncnn::Mat& feats, std::vector<CenterPrior>& center_priors, float threshold, std::vector<std::vector<BoxInfo>>& results);
-//    BoxInfo disPred2Bbox(const float*& dfl_det, int label, float score, int x, int y, int stride);
+    BoxInfo disPred2Bbox(const float*& dfl_det, int label, float score, int x, int y, int stride);
     static void nms(std::vector<BoxInfo>& result, float nms_threshold);
 
 };

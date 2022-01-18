@@ -25,8 +25,8 @@ int main() {
 
 //    ResizeImg(img, resize_img, 960, rat_a, rat_b);
 
-    Yolov5 det("/home/ubuntu/Documents/pycharm/PaddleOCR/onnx/ncnn/ppocr_rec_opt.param",
-               "/home/ubuntu/Documents/pycharm/PaddleOCR/onnx/ncnn/ppocr_rec_opt.bin",
+    Yolov5 det("/home/ubuntu/Documents/cpp/yolov5/ncnn/yolov5s.param",
+               "/home/ubuntu/Documents/cpp/yolov5/ncnn/yolov5s.bin",
                false);
 
     det.detect(img, 0.3, 0.5);
