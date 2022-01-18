@@ -109,7 +109,7 @@ void Yolov5::decode_infer(ncnn::Mat& feats,
 
 static void generate_grid_center_priors(const int input_height,
                                         const int input_width,
-                                        std::vector<int>& strides, 
+                                        std::vector<int>& strides,
                                         const std::vector<YoloLayerData>& anchors,
                                         std::vector<CenterPrior>& center_priors) {
 
