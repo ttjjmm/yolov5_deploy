@@ -74,36 +74,57 @@ void Yolov5::decode_infer(ncnn::Mat& feats,
                           float threshold,
                           std::vector<std::vector<BoxInfo>>& results) {
 
-    const int num_points = center_priors.size();
+    const int num_points = (int)center_priors.size();
     //printf("num_points:%d\n", num_points);
-
+    int curr_stride = 32;
+    int anchor_num = 3;
+    std::vector<cv::Size_<int>> curr_anchors;
     //cv::Mat debug_heatmap = cv::Mat(feature_h, feature_w, CV_8UC3);
-    for (int idx = 0; idx < num_points; idx++)
-    {
+    for (int idx = 0; idx < num_points; idx++) {
+
+        auto stride = center_priors[idx].stride;
+
+        if (curr_stride != stride) {
+            curr_stride = stride;
+            anchor_num = (int)this->anchors.at(curr_stride).size();
+            curr_anchors = this->anchors.at(curr_stride);
+        }
 
         const int ct_x = center_priors[idx].x;
         const int ct_y = center_priors[idx].y;
-        const int stride = center_priors[idx].stride;
 
-        const float* scores = feats.row(idx);
-        float score = 0;
-        int cur_label = 0;
-        for (int label = 0; label < this->num_class; label++)
-        {
-            if (scores[label] > score)
-            {
-                score = scores[label];
-                cur_label = label;
+        for (int anchor_i = 0; anchor_i < anchor_num; ++anchor_i) {
+
+            const float* scores = feats.row(idx * anchor_num + anchor_i) + 5;
+            float score = 0;
+            int cur_label = 0;
+            for (int label = 0; label < this->num_class; label++) {
+                if (scores[label] > score) {
+                    score = scores[label];
+                    cur_label = label;
+                }
+            }
+            if (score > threshold) {
+                //std::cout << "label:" << cur_label << " score:" << score << std::endl;
+                const float* bbox_pred = feats.row(idx);
+                auto cx = (float)((bbox_pred[0] * 2 - 0.5 + ct_x) * curr_stride);
+                auto cy = (float)((bbox_pred[1] * 2 - 0.5 + ct_y) * curr_stride);
+                auto w = (float)(pow(bbox_pred[2] * 2, 2) * curr_anchors.at(anchor_i).width);
+                auto h = (float)(pow(bbox_pred[3] * 2, 2) * curr_anchors.at(anchor_i).height);
+
+                BoxInfo bbox;
+                bbox.x1 = cx - w / 2;
+                bbox.y1 = cy - h / 2;
+                bbox.x2 = cx + w / 2;
+                bbox.y2 = cy + h / 2;
+                bbox.score = score * bbox_pred[4];
+                bbox.label = cur_label;
+                results[cur_label].push_back(bbox);
+                //debug_heatmap.at<cv::Vec3b>(row, col)[0] = 255;
+                //cv::imshow("debug", debug_heatmap);
             }
         }
-        if (score > threshold)
-        {
-            //std::cout << "label:" << cur_label << " score:" << score << std::endl;
-            const float* bbox_pred = feats.row(idx) + this->num_class;
-            results[cur_label].push_back(this->disPred2Bbox(bbox_pred, cur_label, score, ct_x, ct_y, stride));
-            //debug_heatmap.at<cv::Vec3b>(row, col)[0] = 255;
-            //cv::imshow("debug", debug_heatmap);
-        }
+
     }
 }
 
@@ -161,11 +182,12 @@ std::vector<BoxInfo> Yolov5::detect(cv::Mat image, float score_threshold, float 
                                 this->input_size.height,
                                 this->strides,
                                 center_priors);
+
     std::cout << center_priors.size() << std::endl;
     std::cout << out.w << " x " << out.h << std::endl;
 
     this->decode_infer(out, center_priors, score_threshold, results);
-
+    std::cout << results.size() << std::endl;
     exit(11);
     std::vector<BoxInfo> dets;
     for (int i = 0; i < (int)results.size(); i++)
