@@ -1,4 +1,4 @@
-## YOLOv5 NCNN 
+## YOLOv5 NCNN (coding now ...)
 NCNN Deployment code for YOLOv5-v6.0 
 
 Based on https://github.com/ultralytics/yolov5
