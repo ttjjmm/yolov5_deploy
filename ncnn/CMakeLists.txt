@@ -15,8 +15,8 @@ endif()
 find_package(OpenCV REQUIRED)
 
 set(ncnn_DIR "/home/ubuntu/opt/ncnn/build/install/lib/cmake/ncnn")
-find_package(ncnn REQUIRED)
-if(NOT TARGET ncnn)
+find_package(. REQUIRED)
+if(NOT TARGET .)
     message(WARNING "ncnn NOT FOUND!  Please set ncnn_DIR environment variable")
 else()
     message("NCNN FOUND")
@@ -25,7 +25,7 @@ endif()
 
 include_directories(
         ${OpenCV_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        ..
         ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -38,6 +38,6 @@ add_executable(
 
 target_link_libraries(
         yolov5
-        ncnn
+        .
         ${OpenCV_LIBS}
 )
