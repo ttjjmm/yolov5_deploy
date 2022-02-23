@@ -1,8 +1,8 @@
 ### YOLOV5 Deployment
 
 
-[x] ncnn  
-[ ] nmm  
-[ ] openvino  
-[x] tensorrt  
+- [x] ncnn  
+- [ ] nmm  
+- [ ] openvino  
+- [x] tensorrt  
 
