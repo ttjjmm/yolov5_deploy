@@ -39,7 +39,5 @@ add_executable(
 target_link_libraries(
         yolov5
         ncnn
-        #        ${InferenceEngine_LIBRARIES}
-        #        ${NGRAPH_LIBRARIES}
         ${OpenCV_LIBS}
 )
